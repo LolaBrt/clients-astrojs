@@ -1,34 +1,24 @@
 ---
+import Layout from "../layouts/Layout.astro";
 import { getClients } from "../lib/db.js";
 
 const clients = getClients();
 
 const clientCount = clients.length;
 
-const emailsCount = clients.filter(
-  (client) => client.email
-).length;
+const emailsCount = clients.filter((client) => client.email).length;
 
 const locationsCount = clients.filter(
   (client) =>
     Number.isFinite(Number(client.latitude)) &&
-    Number.isFinite(Number(client.longitude))
+    Number.isFinite(Number(client.longitude)),
 ).length;
 ---
 
-<!doctype html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
-  <title>test Les Clients | Dashboard</title>
-
+<Layout title="Dashboard">
   <!-- Leaflet -->
   <link
+    slot="head"
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     crossorigin=""
@@ -446,163 +436,100 @@ const locationsCount = clients.filter(
       }
     }
   </style>
-</head>
-
-<body>
-
   <!-- HEADER -->
   <header class="topbar">
-
     <div class="brand">
-      <div class="brand-icon">
-        📍
-      </div>
+      <div class="brand-icon">📍</div>
 
       <div>
-        <div class="brand-title">
-          Clients
-        </div>
+        <div class="brand-title">Clients</div>
 
-        <div class="brand-subtitle">
-          Gestion géographique
-        </div>
+        <div class="brand-subtitle">Gestion géographique</div>
       </div>
     </div>
-
   </header>
   <main>
-
     <!-- INTRODUCTION -->
 
     <section class="welcome">
+      <h1>Tableau de bord</h1>
 
-      <h1>
-        Tableau de bord
-      </h1>
-
-      <p>
-        Visualisez vos clients et leur localisation géographique.
-      </p>
-
+      <p>Visualisez vos clients et leur localisation géographique.</p>
     </section>
-
 
     <!-- STATISTIQUES -->
 
     <section class="stats">
-
       <div class="stat-card">
-
-        <div class="stat-icon">
-          👥
-        </div>
+        <div class="stat-icon">👥</div>
 
         <div>
           <div class="stat-value">
             {clientCount}
           </div>
 
-          <div class="stat-label">
-            Clients
-          </div>
+          <div class="stat-label">Clients</div>
         </div>
-
       </div>
 
-
       <div class="stat-card">
-
-        <div class="stat-icon">
-          📍
-        </div>
+        <div class="stat-icon">📍</div>
 
         <div>
           <div class="stat-value">
             {locationsCount}
           </div>
 
-          <div class="stat-label">
-            Localisations
-          </div>
+          <div class="stat-label">Localisations</div>
         </div>
-
       </div>
 
-
       <div class="stat-card">
-
-        <div class="stat-icon">
-          ✉️
-        </div>
+        <div class="stat-icon">✉️</div>
 
         <div>
           <div class="stat-value">
             {emailsCount}
           </div>
 
-          <div class="stat-label">
-            Contacts avec email
-          </div>
+          <div class="stat-label">Contacts avec email</div>
         </div>
-
       </div>
-
     </section>
-
 
     <!-- MAP -->
 
     <section class="map-card">
-
       <div class="card-header">
-
         <div>
-
-          <div class="card-title">
-            Carte des clients
-          </div>
+          <div class="card-title">Carte des clients</div>
 
           <div class="card-description">
             Cliquez sur un marqueur pour afficher les informations du client.
           </div>
-
         </div>
 
         <div class="map-status">
           <span class="status-dot"></span>
           Carte active
         </div>
-
       </div>
 
       <div id="map"></div>
-
     </section>
-
 
     <!-- CLIENTS -->
 
     <section class="clients-card">
-
       <div class="clients-header">
+        <div class="card-title">Liste des clients</div>
 
-        <div class="card-title">
-          Liste des clients
-        </div>
-
-        <div class="card-description">
-          Données provenant de SQLite
-        </div>
-
+        <div class="card-description">Données provenant de SQLite</div>
       </div>
 
-
       <div class="clients-table-wrapper">
-
         <table>
-
           <thead>
-
             <tr>
               <th>Client</th>
               <th>Email</th>
@@ -610,73 +537,47 @@ const locationsCount = clients.filter(
               <th>Coordonnées</th>
               <th>Position</th>
             </tr>
-
           </thead>
 
           <tbody>
+            {
+              clients.map((client) => (
+                <tr>
+                  <td>
+                    <div class="client-name">{client.name}</div>
+                  </td>
 
-            {clients.map((client) => (
+                  <td>
+                    <div class="client-email">{client.email ?? "—"}</div>
+                  </td>
 
-              <tr>
+                  <td>{client.address ?? "—"}</td>
 
-                <td>
-                  <div class="client-name">
-                    {client.name}
-                  </div>
-                </td>
+                  <td>
+                    <span class="coordinates">
+                      {Number(client.latitude).toFixed(5)},
+                      {Number(client.longitude).toFixed(5)}
+                    </span>
+                  </td>
 
-                <td>
-                  <div class="client-email">
-                    {client.email ?? "—"}
-                  </div>
-                </td>
-
-                <td>
-                  {client.address ?? "—"}
-                </td>
-
-                <td>
-
-                  <span class="coordinates">
-                    {Number(client.latitude).toFixed(5)},
-                    {Number(client.longitude).toFixed(5)}
-                  </span>
-
-                </td>
-
-                <td>
-
-                  <span class="location-badge">
-                    ● Localisé
-                  </span>
-
-                </td>
-
-              </tr>
-
-            ))}
-
+                  <td>
+                    <span class="location-badge">● Localisé</span>
+                  </td>
+                </tr>
+              ))
+            }
           </tbody>
-
         </table>
-
       </div>
-
     </section>
-
   </main>
-
 
   <!-- LEAFLET -->
 
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    crossorigin=""
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""
   ></script>
 
-
   <script define:vars={{ clients }}>
-
     /*
      * Création de la carte.
      *
@@ -687,22 +588,17 @@ const locationsCount = clients.filter(
 
     const map = L.map("map", {
       zoomControl: true,
-      scrollWheelZoom: true
+      scrollWheelZoom: true,
     });
-
 
     /*
      * Fond OpenStreetMap
      */
 
-    L.tileLayer(
-      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap contributors"
-      }
-    ).addTo(map);
-
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: "&copy; OpenStreetMap contributors",
+    }).addTo(map);
 
     /*
      * Tableau des coordonnées.
@@ -710,33 +606,21 @@ const locationsCount = clients.filter(
 
     const bounds = [];
 
-
     /*
      * Création des marqueurs.
      */
 
     clients.forEach((client) => {
-
       const latitude = Number(client.latitude);
       const longitude = Number(client.longitude);
 
-
-      if (
-        !Number.isFinite(latitude) ||
-        !Number.isFinite(longitude)
-      ) {
+      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
         return;
       }
 
-
-      const position = [
-        latitude,
-        longitude
-      ];
-
+      const position = [latitude, longitude];
 
       bounds.push(position);
-
 
       const popup = `
         <div class="popup-title">
@@ -752,13 +636,8 @@ const locationsCount = clients.filter(
         </div>
       `;
 
-
-      L.marker(position)
-        .addTo(map)
-        .bindPopup(popup);
-
+      L.marker(position).addTo(map).bindPopup(popup);
     });
-
 
     /*
      * Ajustement automatique de la carte.
@@ -767,36 +646,20 @@ const locationsCount = clients.filter(
      */
 
     if (bounds.length === 1) {
-
-      map.setView(
-        bounds[0],
-        12
-      );
-
+      map.setView(bounds[0], 12);
     } else if (bounds.length > 1) {
-
-      map.fitBounds(
-        bounds,
-        {
-          padding: [50, 50],
-          maxZoom: 12
-        }
-      );
-
+      map.fitBounds(bounds, {
+        padding: [50, 50],
+        maxZoom: 12,
+      });
     } else {
-
       /*
        * Aucun client géolocalisé :
        * affichage par défaut sur la France.
        */
 
-      map.setView(
-        [46.6, 2.5],
-        6
-      );
-
+      map.setView([46.6, 2.5], 6);
     }
-
 
     /*
      * Protection minimale contre l'injection HTML
@@ -804,17 +667,12 @@ const locationsCount = clients.filter(
      */
 
     function escapeHtml(value) {
-
       return String(value)
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
-
     }
-
   </script>
-
-</body>
-</html>
+</Layout>
